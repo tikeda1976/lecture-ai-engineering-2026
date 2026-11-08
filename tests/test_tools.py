@@ -39,6 +39,21 @@ def test_lecture_summary():
     assert "まだありません" in tools.get_lecture_summary(99)
 
 
+def test_make_quiz_returns_question_and_answer():
+    quiz = json.loads(tools.make_quiz(2))
+    assert isinstance(quiz["question"], str) and quiz["question"]
+    assert isinstance(quiz["answer"], str) and quiz["answer"]
+
+
+def test_make_quiz_reports_available_lectures(monkeypatch):
+    monkeypatch.setattr(tools, "load_glossary", lambda: [
+        {"lecture": 6}, {"lecture": 2}, {"lecture": 2},
+    ])
+    result = tools.make_quiz(0)
+    assert "第0回の用語は用語集にありません" in result
+    assert "用語がある回: 2, 6" in result
+
+
 def test_default_question_of_lecture1_is_answerable_from_glossary():
     """第1回の既定の質問（app.ask）は、第3回のエージェントが用語集で正しく答えられること。"""
     from app.ask import DEFAULT_QUESTION
